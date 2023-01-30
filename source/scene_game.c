@@ -7,13 +7,18 @@
 #include "map_gameplay_bg0.h"
 #include "map_gameplay_bg1.h"
 
+#include "gfx_board.h"
+
 GBA_Gfx map_g_bg0_gfx, map_g_bg1_gfx;
 FIXED map_x, map_y;
 
+GBA_Gfx board;
+GBA_Sprite board_spr, board2_spr;
+
 void initGame() {
   GBA_setMode(0);
-  GBA_enableBg(0);
-  GBA_enableBg(1);
+  // GBA_enableBg(0);
+  // GBA_enableBg(1);
   GBA_enableBg(2);
 
   tte_init_se(0, BG_CBB(1) | BG_SBB(31) | BG_PRIO(0), SE_PALBANK(15), 0xFFFF, 0,
@@ -33,17 +38,31 @@ void initGame() {
 
   map_x = map_y = 0x00;
 
+  board = GBA_initGfx(gfx_board, SPR_SQUARE, false);
+  GBA_loadObjects(board, 17, 2);
+
   GBA_initOam(128);
 
   initBall();
   initBlocks();
+
+  GBA_createSprite(&board_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) - 16,
+                   160 - 20, 17, 2, 0, SPR_16X16);
+  GBA_createSprite(&board2_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) + 16,
+                   160 - 20, 17, 2, 0, SPR_16X16);
 }
 
 void updateGame() {
   map_x = map_y += 0x080;
 
+  board_spr.tile_id = 17 + (point1 * 4);
+  board2_spr.tile_id = 17 + (point2 * 4);
+
   REG_BG_OFS[2].x = fx2int(map_x);
   REG_BG_OFS[2].y = fx2int(map_y);
+
+  GBA_updateSprite(&board_spr);
+  GBA_updateSprite(&board2_spr);
 
   updateBall();
   updateBlocks();
@@ -53,5 +72,3 @@ void updateGame() {
 void endGame() {}
 
 GBA_Scene scene_game = {initGame, updateGame, endGame};
-
-// TODO: Criar funções para adiministrar mapas

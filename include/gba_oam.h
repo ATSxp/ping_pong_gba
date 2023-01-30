@@ -37,7 +37,7 @@ extern OBJ_ATTR oam_buffer[MAX_SPRITES];
 extern OBJ_AFFINE *oam_aff_buffer;
 extern u32 oam_count;
 
-void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, int x, int y, u32 oam_id,
+void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
                       u32 tile_id, u32 pal_bank, u32 prio, u32 size);
 void GBA_flipSprite(GBA_Sprite *spr, bool h, bool v);
 void GBA_updateSprite(GBA_Sprite *spr);

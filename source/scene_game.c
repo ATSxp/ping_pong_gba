@@ -1,40 +1,57 @@
 #include "../include/scene_game.h"
 #include "../include/gba.h"
 
-#include "gfx_ball.h"
-#include "gfx_blocks.h"
+#include "../include/e_ball.h"
+#include "../include/e_blocks.h"
 
-GBA_Gfx ball_gfx;
-GBA_Sprite ball_spr;
+#include "map_gameplay_bg0.h"
+#include "map_gameplay_bg1.h"
 
-GBA_Gfx block_gfx;
-GBA_Sprite block_spr;
+GBA_Gfx map_g_bg0_gfx, map_g_bg1_gfx;
+FIXED map_x, map_y;
 
 void initGame() {
   GBA_setMode(0);
   GBA_enableBg(0);
+  GBA_enableBg(1);
+  GBA_enableBg(2);
+
+  tte_init_se(0, BG_CBB(1) | BG_SBB(31) | BG_PRIO(0), SE_PALBANK(15), 0xFFFF, 0,
+              NULL, NULL);
+  tte_init_con();
+
+  // Tmp
+  map_g_bg0_gfx = GBA_initGfx(map_gameplay_bg0, 0, false);
+  GBA_loadTiles(map_g_bg0_gfx, 0, 3, 1);
+  REG_BG1CNT = BG_4BPP | BG_CBB(0) | BG_SBB(29) | BG_PRIO(1);
+  memcpy16(&se_mem[29][0], map_gameplay_bg0Map, map_gameplay_bg0MapLen);
+
+  map_g_bg1_gfx = GBA_initGfx(map_gameplay_bg1, 0, false);
+  GBA_loadTiles(map_g_bg1_gfx, 0, 0, 0);
+  REG_BG2CNT = BG_4BPP | BG_CBB(0) | BG_SBB(27) | BG_PRIO(2);
+  memcpy16(&se_mem[27][0], map_gameplay_bg1Map, map_gameplay_bg1MapLen);
+
+  map_x = map_y = 0x00;
 
   GBA_initOam(128);
 
-  ball_gfx = GBA_initGfx(gfx_ball, SPR_SQUARE, false);
-  GBA_loadObjects(ball_gfx, 0, 0);
-
-  block_gfx = GBA_initGfx(gfx_blocks, SPR_TALL, false);
-  GBA_loadObjects(block_gfx, 1, 1);
-
-  GBA_createSprite(&ball_spr, ball_gfx, 0, 0, 0, 0, 0, 0, SPR_8X8);
-  GBA_createSprite(&block_spr, block_gfx, 0, 8, 1, 1, 1, 0, SPR_16X32);
+  initBall();
+  initBlocks();
 }
 
 void updateGame() {
-  key_poll();
+  map_x = map_y += 0x080;
 
-  ball_spr.x++;
+  REG_BG_OFS[2].x = fx2int(map_x);
+  REG_BG_OFS[2].y = fx2int(map_y);
 
-  GBA_updateSprite(&ball_spr);
+  updateBall();
+  updateBlocks();
   GBA_updateOam();
 }
 
 void endGame() {}
 
 GBA_Scene scene_game = {initGame, updateGame, endGame};
+
+// TODO: Criar funções para adiministrar mapas

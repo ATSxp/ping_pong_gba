@@ -2,7 +2,7 @@
 
 OBJ_ATTR oam_buffer[MAX_SPRITES];
 OBJ_AFFINE *oam_aff_buffer = (OBJ_AFFINE *)oam_buffer;
-u32 oam_count;
+u32 oam_count = 0;
 
 u16 _getSpriteShape(u32 shape) {
   switch (shape) {
@@ -19,13 +19,20 @@ u16 _getSpriteShape(u32 shape) {
   return 0;
 }
 
-void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, int x, int y, u32 oam_id,
+void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
                       u32 tile_id, u32 pal_bank, u32 prio, u32 size) {
+  OBJ_ATTR *o;
+
   if (oam_count >= MAX_SPRITES)
     return;
 
-  OBJ_ATTR *o = &oam_buffer[oam_id];
-  ++oam_count;
+  if (oam_id < 0) {
+    o = &oam_buffer[oam_count++];
+    oam_id = oam_count - 1;
+  } else {
+    o = &oam_buffer[oam_id];
+  }
+  spr->id = oam_id;
 
   o->attr0 = (gfx.bpp ? ATTR0_8BPP : ATTR0_4BPP) | (_getSpriteShape(gfx.shape));
   o->attr1 = ATTR1_SIZE(spr->size = size);
@@ -35,9 +42,10 @@ void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, int x, int y, u32 oam_id,
   GBA_setSpritePos(spr, spr->x = x, spr->y = y);
   spr->gfx = gfx;
 
-  if (oam_id + 1 > oam_count) {
-    int tmp = (int)oam_count - (int)oam_id;
-    oam_count = ABS(tmp);
+  if (oam_id < 0) {
+    if (oam_id + 1 > oam_count) {
+      oam_count += ABS((int)oam_count - (int)oam_id);
+    }
   }
 }
 

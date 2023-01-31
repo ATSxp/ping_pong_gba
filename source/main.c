@@ -5,10 +5,15 @@
 #include "../include/scene_game.h"
 
 int main() {
-  GBA_setScene(scene_game);
+  if (mgba_open()) {
+    mgba_printf(MGBA_LOG_INFO, "Debug log ON");
+  }
 
   GBA_init();
+  GBA_setScene(scene_game);
   GBA_update();
+
+  mgba_close();
 
   return 0;
 }

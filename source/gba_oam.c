@@ -1,30 +1,18 @@
 #include "../include/gba_oam.h"
+#include "../include/gba_mgba.h"
 
 OBJ_ATTR oam_buffer[MAX_SPRITES];
 OBJ_AFFINE *oam_aff_buffer = (OBJ_AFFINE *)oam_buffer;
-u32 oam_count = 0;
-
-u16 _getSpriteShape(u32 shape) {
-  switch (shape) {
-  case SPR_SQUARE:
-    return ATTR0_SQUARE;
-    break;
-  case SPR_TALL:
-    return ATTR0_TALL;
-    break;
-  case SPR_WIDE:
-    return ATTR0_WIDE;
-    break;
-  }
-  return 0;
-}
+u32 oam_count;
 
 void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
                       u32 tile_id, u32 pal_bank, u32 prio, u32 size) {
   OBJ_ATTR *o;
 
-  if (oam_count >= MAX_SPRITES)
+  if (oam_count >= MAX_SPRITES) {
+    mgba_printf(MGBA_LOG_WARN, "OAM it is full");
     return;
+  }
 
   if (oam_id < 0) {
     o = &oam_buffer[oam_count++];
@@ -34,7 +22,7 @@ void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
   }
   spr->id = oam_id;
 
-  o->attr0 = (gfx.bpp ? ATTR0_8BPP : ATTR0_4BPP) | (_getSpriteShape(gfx.shape));
+  o->attr0 = (gfx.bpp ? ATTR0_8BPP : ATTR0_4BPP) | (ATTR0_SHAPE(gfx.shape));
   o->attr1 = ATTR1_SIZE(spr->size = size);
   o->attr2 = ATTR2_BUILD(spr->tile_id = tile_id, spr->pal_bank = pal_bank,
                          spr->prio = prio);
@@ -47,6 +35,8 @@ void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
       oam_count += ABS((int)oam_count - (int)oam_id);
     }
   }
+
+  mgba_printf(MGBA_LOG_DEBUG, "Add Object in slot %d of OAM Buffer", oam_id);
 }
 
 void GBA_flipSprite(GBA_Sprite *spr, bool h, bool v) {

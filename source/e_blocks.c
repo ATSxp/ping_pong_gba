@@ -55,8 +55,6 @@ void updateBlocks() {
     }
   }
 
-  tte_printf("#{es;P:100,144}%d | %d", point2, point1);
-
   p->y += dy1;
   e->y += dy2;
 

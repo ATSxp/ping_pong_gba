@@ -3,6 +3,7 @@
 
 #include <tonc.h>
 
+#include "gba_mgba.h"
 #include "gba_scene.h"
 
 // Enable Background (0-3)

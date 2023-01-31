@@ -7,7 +7,7 @@
 
 #define MAX_SPRITES 128
 
-enum GBA_SpriteShapes { SPR_SQUARE, SPR_TALL, SPR_WIDE };
+enum GBA_SpriteShapes { SPR_SQUARE, SPR_WIDE, SPR_TALL };
 enum GBA_SpriteSizes {
   SPR_8X8,
   SPR_16X16,

@@ -16,14 +16,20 @@ void initBoard() {
   dec_pt = dec_pt2 = 0;
   pt_mul = pt_mul2 = 1;
 
+  // Create new palette for other board
+  clr_rgbscale(pal_obj_bank[3], gfx_boardPal, 6, CLR_GREEN);
+  int ii;
+  for (ii = 4; ii < 6; ii++)
+    pal_obj_bank[3][ii] = gfx_boardPal[ii];
+
   GBA_createSprite(&board_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) - 16,
                    160 - 20, BOARD_TILE_ID, 2, 0, SPR_16X16);
   GBA_createSprite(&board2_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) + 16,
-                   160 - 20, BOARD_TILE_ID, 2, 0, SPR_16X16);
+                   160 - 20, BOARD_TILE_ID, 3, 0, SPR_16X16);
   GBA_createSprite(&board3_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) - 32,
                    160 - 20, BOARD_TILE_ID, 2, 0, SPR_16X16);
   GBA_createSprite(&board4_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) + 32,
-                   160 - 20, BOARD_TILE_ID, 2, 0, SPR_16X16);
+                   160 - 20, BOARD_TILE_ID, 3, 0, SPR_16X16);
 }
 
 void updateBoard() {

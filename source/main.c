@@ -1,16 +1,14 @@
-#include <tonc.h>
-
 #include "../include/gba_scene.h"
 #include "../include/gba_sys.h"
-#include "../include/scene_game.h"
+#include "../include/scene_menu.h"
 
 int main() {
-  if (mgba_open()) {
-    mgba_printf(MGBA_LOG_INFO, "Debug log ON");
-  }
+  MGBA_DEBUG_ON = 1;
+  mgba_open();
 
   GBA_init();
-  GBA_setScene(scene_game);
+  GBA_setScene(scene_menu);
+
   GBA_update();
 
   mgba_close();

@@ -85,10 +85,11 @@ void initBall() {
   ball_gfx = GBA_initGfx(gfx_ball, SPR_SQUARE, false);
   GBA_loadObjects(ball_gfx, 0, 0);
 
-  GBA_createSprite(&ball_spr, ball_gfx, -1, BALL_INIT_X << 8, BALL_INIT_Y << 8,
-                   0, 0, 1, SPR_8X8);
+  ballReset();
 
-  ballRandomDeltaPos();
+  GBA_createSprite(&ball_spr, ball_gfx, -1, BALL_INIT_X, BALL_INIT_Y, 0, 0, 1,
+                   SPR_8X8);
+
   ball_hit_b1 = ball_hit_b2 = false;
   ball_extra_speed = 0x00;
 
@@ -109,7 +110,7 @@ void updateBall() {
   checkBallInBlock2(b, &block2_spr);
 
   if (ball_hit_b1 || ball_hit_b2) {
-    ball_extra_speed += 0x0200;
+    ball_extra_speed += 0x0300;
     mmEffectEx(&ball_hit_snd);
   }
 
@@ -117,18 +118,16 @@ void updateBall() {
     ball_extra_speed = 0x00;
 
   if (b->x < 0) {
-    ++point1;
+    ++point2;
     ballReset();
   } else if (b->x + 8 > SCREEN_WIDTH) {
-    ++point2;
+    ++point1;
     ballReset();
   }
 
   ball_x += ball_dx;
   ball_y += ball_dy;
   ball_extra_speed -= 0x030;
-
-  mgba_printf(MGBA_LOG_DEBUG, "%d|%d", ball_extra_speed, ball_dx);
 
   b->x = fx2int(ball_x);
   b->y = fx2int(ball_y);

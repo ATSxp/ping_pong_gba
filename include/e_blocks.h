@@ -4,7 +4,7 @@
 #include "gba.h"
 
 extern GBA_Sprite block_spr, block2_spr;
-extern u32 point1, point2;
+extern u32 point1, point2, b2_state;
 
 void initBlocks();
 void updateBlocks();

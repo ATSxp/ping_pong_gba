@@ -4,6 +4,7 @@
 #include <tonc.h>
 
 #include "gba_load.h"
+#include "gba_map.h"
 #include "gba_mgba.h"
 #include "gba_oam.h"
 #include "gba_scene.h"

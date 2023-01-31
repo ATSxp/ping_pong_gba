@@ -8,17 +8,17 @@
 
 GBA_Gfx blocks_gfx;
 GBA_Sprite block_spr, block2_spr;
-int dy1, dy2, b2_delay;
-u32 point1, point2;
+int dy1, dy2;
+u32 point1, point2, b2_state;
 
 void initBlocks() {
   blocks_gfx = GBA_initGfx(gfx_blocks, SPR_TALL, false);
   GBA_loadObjects(blocks_gfx, 1, 1);
 
-  GBA_createSprite(&block_spr, blocks_gfx, -1, 16, BLOCK_INIT_Y, 1, 1, 2,
+  GBA_createSprite(&block_spr, blocks_gfx, -1, 16, BLOCK_INIT_Y, 1, 1, 1,
                    SPR_16X32);
   GBA_createSprite(&block2_spr, blocks_gfx, -1, SCREEN_WIDTH - 32, BLOCK_INIT_Y,
-                   9, 1, 2, SPR_16X32);
+                   9, 1, 1, SPR_16X32);
 
   dy1 = dy2 = 0;
   point1 = point2 = 0;
@@ -46,12 +46,15 @@ void updateBlocks() {
     e->y = SCREEN_HEIGHT - 32;
   }
 
-  if (ball_spr.x < (SCREEN_HEIGHT / 2) - 32) {
-    b2_delay = qran_range(30, 70);
-  } else if (ball_spr.x > (SCREEN_WIDTH / 2) - 32) {
-    --b2_delay;
-    if (ABS(dy) >= BLOCK_SPEED && b2_delay <= 0) {
-      dy2 = dy > 0 ? BLOCK_SPEED : -BLOCK_SPEED;
+  if (ball_spr.x > (SCREEN_WIDTH / 2) - 32) {
+    mgba_printf(MGBA_LOG_DEBUG, "rnd: %d", b2_state); // Tmp
+
+    if (ABS(dy) >= BLOCK_SPEED) {
+      if (b2_state == 0) {
+        dy2 = dy > 0 ? BLOCK_SPEED : -BLOCK_SPEED;
+      } else {
+        dy2 = dy > 0 ? 1 : -1;
+      }
     }
   }
 

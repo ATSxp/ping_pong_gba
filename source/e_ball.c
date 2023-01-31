@@ -3,6 +3,8 @@
 
 #include "gfx_ball.h"
 
+#include "soundbank.h"
+
 #define BALL_INIT_X ((SCREEN_WIDTH - 8) / 2)
 #define BALL_INIT_Y ((SCREEN_HEIGHT - 8) / 2)
 #define BALL_SPEED 2
@@ -10,6 +12,8 @@
 GBA_Gfx ball_gfx;
 GBA_Sprite ball_spr;
 int ball_dx, ball_dy, rnd_dx, rnd_dy;
+
+mm_sound_effect ball_hit_snd;
 
 void ballRandomDeltaPos() {
   rnd_dx = qran_range(-BALL_SPEED, BALL_SPEED);
@@ -47,6 +51,10 @@ void initBall() {
                    SPR_8X8);
 
   ballRandomDeltaPos();
+
+  ball_hit_snd = (mm_sound_effect){
+      {SFX_BALL_HIT}, (int)(1.0f * (1 << 10)), 0, 255, 128,
+  };
 }
 
 void updateBall() {
@@ -74,6 +82,8 @@ void updateBall() {
 
     ball_dx = -ball_dx;
     b2_state = qran_range(0, 1);
+
+    mmEffectEx(&ball_hit_snd);
   }
 
   if (b->x < 0) {

@@ -1,6 +1,7 @@
 #ifndef GBA_SYS_H
 #define GBA_SYS_H
 
+#include <maxmod.h>
 #include <tonc.h>
 
 #include "gba_mgba.h"
@@ -18,7 +19,7 @@ INLINE void GBA_setMode(u32 mode) { REG_DISPCNT = DCNT_MODE(mode); }
 // Init GBA library
 INLINE void GBA_init() {
   irq_init(NULL);
-  irq_add(II_VBLANK, GBA_updateScene);
+  irq_add(II_VBLANK, mmVBlank);
   irq_enable(II_VBLANK);
 }
 
@@ -26,7 +27,9 @@ INLINE void GBA_init() {
 INLINE void GBA_update() {
   while (true) {
     key_poll();
+    mmFrame();
     VBlankIntrWait();
+    GBA_updateScene();
   }
 }
 

@@ -2,16 +2,29 @@
 
 #include "gfx_board.h"
 
-#define BOARD_TILE_ID 17
+#define BOARD_TILE_ID 21
 
 GBA_Gfx board;
 GBA_Sprite board_spr, board2_spr, board3_spr, board4_spr;
 
 u32 dec_pt, dec_pt2, pt_mul, pt_mul2;
 
+typedef struct {
+  GBA_Sprite *spr;
+  int offsetx;
+  u32 pal_bank;
+} Boards_spr;
+
+Boards_spr b_sprs[4] = {
+    {&board_spr, -16, 2},
+    {&board2_spr, 16, 3},
+    {&board3_spr, -32, 2},
+    {&board4_spr, 32, 3},
+};
+
 void initBoard() {
   board = GBA_initGfx(gfx_board, SPR_SQUARE, false);
-  GBA_loadObjects(board, 17, 2);
+  GBA_loadObjects(board, BOARD_TILE_ID, 2);
 
   dec_pt = dec_pt2 = 0;
   pt_mul = pt_mul2 = 1;
@@ -22,14 +35,12 @@ void initBoard() {
   for (ii = 4; ii < 6; ii++)
     pal_obj_bank[3][ii] = gfx_boardPal[ii];
 
-  GBA_createSprite(&board_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) - 16,
-                   160 - 20, BOARD_TILE_ID, 2, 0, SPR_16X16);
-  GBA_createSprite(&board2_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) + 16,
-                   160 - 20, BOARD_TILE_ID, 3, 0, SPR_16X16);
-  GBA_createSprite(&board3_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) - 32,
-                   160 - 20, BOARD_TILE_ID, 2, 0, SPR_16X16);
-  GBA_createSprite(&board4_spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) + 32,
-                   160 - 20, BOARD_TILE_ID, 3, 0, SPR_16X16);
+  Boards_spr *b = b_sprs;
+  for (ii = 0; ii < 4; ii++) {
+    GBA_createSprite(b->spr, board, -1, ((SCREEN_WIDTH - 16) >> 1) + b->offsetx,
+                     160 - 20, BOARD_TILE_ID, b->pal_bank, 0, SPR_16X16);
+    b++;
+  }
 }
 
 void updateBoard() {
@@ -37,10 +48,10 @@ void updateBoard() {
              *b4 = &board4_spr;
 
   if (point1 < 100 || point2 < 100) {
-    b1->tile_id = BOARD_TILE_ID + ((point1 % 10) * 4);
+    b1->tile_id = BOARD_TILE_ID + (DivArmMod(10, point1) * 4);
     b2->tile_id = BOARD_TILE_ID + (dec_pt2 * 4);
     b3->tile_id = BOARD_TILE_ID + (dec_pt * 4);
-    b4->tile_id = BOARD_TILE_ID + ((point2 % 10) * 4);
+    b4->tile_id = BOARD_TILE_ID + (DivArmMod(10, point2) * 4);
   }
 
   if (point1 >= (10 * pt_mul)) {
@@ -53,8 +64,7 @@ void updateBoard() {
     ++pt_mul2;
   }
 
-  GBA_updateSprite(b1);
-  GBA_updateSprite(b2);
-  GBA_updateSprite(b3);
-  GBA_updateSprite(b4);
+  int ii;
+  for (ii = 0; ii < 4; ii++)
+    GBA_updateSprite(b_sprs[ii].spr);
 }

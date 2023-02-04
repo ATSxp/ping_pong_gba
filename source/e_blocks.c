@@ -3,22 +3,23 @@
 
 #include "gfx_blocks.h"
 
-#define BLOCK_INIT_Y ((SCREEN_HEIGHT - 32) / 2)
+#define BLOCK_INIT_Y (SCREEN_HEIGHT - 32)/2
 #define BLOCK_SPEED 2
 
 GBA_Gfx blocks_gfx;
 GBA_Sprite block_spr, block2_spr;
+
 int dy1, dy2;
 u32 point1, point2, b2_state;
 
 void initBlocks() {
   blocks_gfx = GBA_initGfx(gfx_blocks, SPR_TALL, false);
-  GBA_loadObjects(blocks_gfx, 1, 1);
+  GBA_loadObjects(blocks_gfx, 5, 1);
 
-  GBA_createSprite(&block_spr, blocks_gfx, -1, 16, BLOCK_INIT_Y, 1, 1, 1,
+  GBA_createSprite(&block_spr, blocks_gfx, -1, 16, BLOCK_INIT_Y, 5, 1, 1,
                    SPR_16X32);
   GBA_createSprite(&block2_spr, blocks_gfx, -1, SCREEN_WIDTH - 32, BLOCK_INIT_Y,
-                   9, 1, 1, SPR_16X32);
+                   13, 1, 1, SPR_16X32);
 
   dy1 = dy2 = 0;
   point1 = point2 = 0;

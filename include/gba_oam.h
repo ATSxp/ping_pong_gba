@@ -33,14 +33,29 @@ typedef struct {
   GBA_Gfx gfx;
 } GBA_Sprite;
 
+typedef struct {
+  const u32 len;
+  const u32 *frames;
+  FIXED speed;
+  bool loop;
+
+  bool finish;
+  FIXED ticks;
+  int cur_frame;
+} GBA_Anim;
+
 extern OBJ_ATTR oam_buffer[MAX_SPRITES];
 extern OBJ_AFFINE *oam_aff_buffer;
 extern u32 oam_count;
+
+/*#define GBA_initAnim(len, frames, speed, loop)                                 \
+  (GBA_Anim) { len, frames, speed, loop }*/
 
 void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
                       u32 tile_id, u32 pal_bank, u32 prio, u32 size);
 void GBA_flipSprite(GBA_Sprite *spr, bool h, bool v);
 void GBA_updateSprite(GBA_Sprite *spr);
+void GBA_setAnimSprite(GBA_Sprite *spr, GBA_Anim *anim);
 
 INLINE void GBA_initOam(u32 count) {
   oam_count = 0;

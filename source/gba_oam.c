@@ -39,6 +39,27 @@ void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
   mgba_printf(MGBA_LOG_DEBUG, "Add Object in slot %d of OAM Buffer", oam_id);
 }
 
+// Ativa a animação do Objeto com base na estrutura TAnim
+void GBA_setAnimSprite(GBA_Sprite *spr, GBA_Anim *anim) {
+  if (anim->cur_frame > (int)anim->len) {
+    if (!anim->loop)
+      anim->finish = true;
+  }
+
+  if (!anim->finish)
+    anim->ticks += anim->speed;
+
+  if (anim->ticks > 0x0100) {
+    anim->ticks = 0x00;
+    anim->cur_frame++;
+  }
+
+  u32 frm =
+      anim->loop ? anim->cur_frame % anim->len : anim->cur_frame;
+
+  spr->tile_id = anim->frames[frm] * 1;
+}
+
 void GBA_flipSprite(GBA_Sprite *spr, bool h, bool v) {
   if (h) {
     BIT_SET(oam_buffer[spr->id].attr1, ATTR1_HFLIP);

@@ -5,12 +5,15 @@
 
 #include "soundbank.h"
 
-#define BALL_INIT_X ((SCREEN_WIDTH - 8) / 2)
-#define BALL_INIT_Y ((SCREEN_HEIGHT - 8) / 2)
+#define BALL_INIT_X (SCREEN_WIDTH - 8)/2
+#define BALL_INIT_Y (SCREEN_HEIGHT - 8)/2
 #define BALL_SPEED 0x0150
 
 GBA_Gfx ball_gfx;
 GBA_Sprite ball_spr;
+u32 ball_frm[5] = {0,1,2,3,4};
+GBA_Anim ball_anim = {5, ball_frm, 0x020, true};
+
 int rnd_dx, rnd_dy, ball_speed_i;
 FIXED ball_x, ball_y, ball_dx, ball_dy, ball_extra_speed;
 bool ball_hit_b1, ball_hit_b2;
@@ -43,6 +46,7 @@ void ballReset() {
   ballRandomDeltaPos();
 }
 
+// TODO: Optimize this shit
 void checkBallInBlock1(GBA_Sprite *b, GBA_Sprite *b1) {
   if ((aabb(b->x, b->y, 8, 8, b1->x + 16, b1->y, 1, 32) && ball_dx < 0)) {
     ball_dx = -(ball_dx + ball_extra_speed);
@@ -100,6 +104,7 @@ void initBall() {
 
 void updateBall() {
   GBA_Sprite *b = &ball_spr;
+  GBA_setAnimSprite(b, &ball_anim);
 
   if (b->y < 0 || b->y > SCREEN_HEIGHT - 8) {
     mmEffectEx(&ball_hit_snd); // Just play sound
@@ -131,5 +136,5 @@ void updateBall() {
 
   b->x = fx2int(ball_x);
   b->y = fx2int(ball_y);
-  GBA_updateSprite(&ball_spr);
+  GBA_updateSprite(b);
 }

@@ -3,8 +3,23 @@
 
 #include "map_menu_tmp.h"
 
+#include <string.h>
+
 GBA_Gfx menu_gfx;
 GBA_Map menu_map;
+
+// char *substring(char *dst, const char *src, int beg, int n) {
+//   while (n > 0) {
+//     *dst = *(src + beg);
+//     dst++;
+//     src++;
+//     n--;
+//   }
+//
+//   *dst = '\0';
+//
+//   return dst;
+// }
 
 void initMenu() {
   GBA_setMode(0);
@@ -16,7 +31,7 @@ void initMenu() {
   GBA_initMap(&menu_map, 1, BG_CBB(0) | BG_SBB(28) | BG_8BPP, map_menu_tmpMap,
               32, 32);
 
-  tte_init_se(0, BG_CBB(3) | BG_SBB(31), SE_PALBANK(15), CLR_RED, 0, NULL,
+  tte_init_se(0, BG_CBB(3) | BG_SBB(31), SE_PALBANK(15), CLR_RED, 0, &sys8Font,
               (fnDrawg)se_drawg_s);
 
   tte_write("#{P:60,140}Press [ START ]");

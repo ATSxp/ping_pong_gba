@@ -48,10 +48,10 @@ void updateBoard() {
              *b4 = &board4_spr;
 
   if (point1 < 100 || point2 < 100) {
-    b1->tile_id = BOARD_TILE_ID + (DivArmMod(10, point1) * 4);
+    b1->tile_id = BOARD_TILE_ID + ((point1 % 10) * 4);
     b2->tile_id = BOARD_TILE_ID + (dec_pt2 * 4);
     b3->tile_id = BOARD_TILE_ID + (dec_pt * 4);
-    b4->tile_id = BOARD_TILE_ID + (DivArmMod(10, point2) * 4);
+    b4->tile_id = BOARD_TILE_ID + ((point2 % 10) * 4);
   }
 
   if (point1 >= (10 * pt_mul)) {

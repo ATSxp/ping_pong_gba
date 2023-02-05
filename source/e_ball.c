@@ -8,6 +8,7 @@
 #define BALL_INIT_X (SCREEN_WIDTH - 8)/2
 #define BALL_INIT_Y (SCREEN_HEIGHT - 8)/2
 #define BALL_SPEED 0x0150
+#define MAX_GOL_TM 0x0800
 
 GBA_Gfx ball_gfx;
 GBA_Sprite ball_spr;
@@ -15,13 +16,12 @@ u32 ball_frm[5] = {0,1,2,3,4};
 GBA_Anim ball_anim = {5, ball_frm, 0x020, true};
 
 int rnd_dx, rnd_dy, ball_speed_i;
-FIXED ball_x, ball_y, ball_dx, ball_dy, ball_extra_speed;
-bool ball_hit_b1, ball_hit_b2;
+FIXED ball_x, ball_y, ball_dx, ball_dy, ball_extra_speed, gol_timer;
+bool ball_hit_b1, ball_hit_b2, gol;
 
 mm_sound_effect ball_hit_snd;
 
-INLINE
-bool aabb(int x1, int y1, u32 w1, u32 h1, int x2, int y2, u32 w2, u32 h2) {
+INLINE bool aabb(int x1, int y1, u32 w1, u32 h1, int x2, int y2, u32 w2, u32 h2) {
   return (x1 + (int)w1 >= x2 && y1 + (int)h1 >= y2 && x2 + (int)w2 >= x1 &&
           y2 + (int)h2 >= y1);
 }
@@ -40,10 +40,22 @@ void ballRandomDeltaPos() {
 }
 
 void ballReset() {
+  GBA_disableBg(0);
+
+  gol = false;
+  gol_timer = MAX_GOL_TM;
+
   ball_x = int2fx(BALL_INIT_X);
   ball_y = int2fx(BALL_INIT_Y);
 
   ballRandomDeltaPos();
+}
+
+inline bool golEventIsOver(){
+  if (gol)
+    ball_dx = ball_dy = 0;
+
+  return gol_timer <= 0x00;
 }
 
 // TODO: Optimize this shit
@@ -123,12 +135,21 @@ void updateBall() {
     ball_extra_speed = 0x00;
 
   if (b->x < 0) {
-    ++point2;
-    ballReset();
+    if (!gol)
+      ++point2;
+    gol = true;
   } else if (b->x + 8 > SCREEN_WIDTH) {
-    ++point1;
-    ballReset();
+    if (!gol)
+      ++point1;
+    gol = true;
   }
+
+  if (gol) {
+    GBA_enableBg(0);
+    gol_timer -= 0x030;
+  }
+
+  if (golEventIsOver()) ballReset();
 
   ball_x += ball_dx;
   ball_y += ball_dy;

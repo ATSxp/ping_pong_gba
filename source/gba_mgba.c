@@ -31,12 +31,8 @@
 #define REG_DEBUG_FLAGS (vu16 *)0x4FFF700
 #define REG_DEBUG_STRING (char *)0x4FFF600
 
-u8 MGBA_DEBUG_ON = 0;
-
+#if MGBA_DEBUG
 void mgba_printf(int level, const char *ptr, ...) {
-  if (MGBA_DEBUG_ON == 0)
-    return;
-
   level &= 0x7;
   va_list args;
   va_start(args, ptr);
@@ -51,3 +47,10 @@ bool mgba_open(void) {
 }
 
 void mgba_close(void) { *REG_DEBUG_ENABLE = 0; }
+#else
+void mgba_printf(int level, const char *ptr, ...) {}
+
+bool mgba_open(void) {return false;}
+
+void mgba_close(void) {}
+#endif

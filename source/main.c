@@ -3,7 +3,6 @@
 #include "../include/scene_menu.h"
 
 int main() {
-  MGBA_DEBUG_ON = 0;
   mgba_open();
 
   GBA_init();

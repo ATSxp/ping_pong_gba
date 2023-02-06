@@ -6,7 +6,9 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-include $(DEVKITARM)/gba_rules
+# include $(DEVKITARM)/gba_rules
+TONC_RULE := ~/Documentos/ats/gba/ping_pong
+include $(TONC_RULE)/tonc_rules
 
 #---------------------------------------------------------------------------------
 # the LIBGBA path is defined in gba_rules, but we have to define LIBTONC ourselves
@@ -26,6 +28,9 @@ LIBTONC := $(DEVKITPRO)/libtonc
 #
 #---------------------------------------------------------------------------------
 TARGET		:= $(notdir $(CURDIR))
+ROMNAME 	:= PING-PONG
+MAKERCODE := 01
+VERSION 	:= 0.1
 BUILD			:= build
 SOURCES		:= source
 INCLUDES	:= include
@@ -134,7 +139,7 @@ clean:
 
 run:
 	@echo running...
-	@mgba-qt $(TARGET).elf
+	@mgba-qt $(TARGET).gba
 
 
 #---------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 
 #include "../include/e_ball.h"
 #include "../include/e_blocks.h"
-#include "../include/point_board.h"
+#include "../include/hud.h"
 
 #include "map_gameplay_bg0.h"
 #include "map_gameplay_bg1.h"
@@ -41,7 +41,7 @@ void initGame() {
 
   initBall();
   initBlocks();
-  initBoard();
+  initHud();
 }
 
 void updateGame() {
@@ -51,7 +51,7 @@ void updateGame() {
 
   updateBall();
   updateBlocks();
-  updateBoard();
+  updateHud();
 
   GBA_updateOam();
 }

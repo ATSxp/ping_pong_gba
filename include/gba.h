@@ -9,5 +9,6 @@
 #include "gba_oam.h"
 #include "gba_scene.h"
 #include "gba_sys.h"
+#include "gba_fx.h"
 
 #endif // !GBA_H

@@ -2,7 +2,7 @@
 
 #include "gfx_board.h"
 
-#define BOARD_TILE_ID 21
+#define BOARD_TILE_ID 37
 
 GBA_Gfx board;
 GBA_Sprite board_spr, board2_spr, board3_spr, board4_spr;

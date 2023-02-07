@@ -1,23 +1,27 @@
 #include "../include/e_ball.h"
 #include "../include/e_blocks.h"
+#include "../include/gba_mgba.h"
 
 #include "gfx_ball.h"
 
+#include "maxmod.h"
 #include "soundbank.h"
 
-#define BALL_INIT_X (SCREEN_WIDTH - 8)/2
-#define BALL_INIT_Y (SCREEN_HEIGHT - 8)/2
-#define BALL_SPEED 0x0150
-#define MAX_GOL_TM 0x0800
+#define BALL_INIT_X   (SCREEN_WIDTH - 8) / 2
+#define BALL_INIT_Y   (SCREEN_HEIGHT - 8) / 2
+#define BALL_SPEED     0x0150
+#define BALL_EXTRA_SPD 0x0150
+#define MAX_GOL_TM     0x0800
 
 GBA_Gfx ball_gfx;
 GBA_Sprite ball_spr;
+
 u32 ball_frm[5] = {0,1,2,3,4};
 GBA_Anim ball_anim = {5, ball_frm, 0x020, true};
 
 int rnd_dx, rnd_dy, ball_speed_i;
 FIXED ball_x, ball_y, ball_dx, ball_dy, ball_extra_speed, gol_timer;
-bool ball_hit_b1, ball_hit_b2, gol;
+bool gol;
 
 mm_sound_effect ball_hit_snd;
 
@@ -48,6 +52,8 @@ void ballReset() {
   ball_x = int2fx(BALL_INIT_X);
   ball_y = int2fx(BALL_INIT_Y);
 
+  ball_extra_speed = 0x00;
+
   ballRandomDeltaPos();
 }
 
@@ -58,43 +64,41 @@ inline bool golEventIsOver(){
   return gol_timer <= 0x00;
 }
 
-// TODO: Optimize this shit
-void checkBallInBlock1(GBA_Sprite *b, GBA_Sprite *b1) {
-  if ((aabb(b->x, b->y, 8, 8, b1->x + 16, b1->y, 1, 32) && ball_dx < 0)) {
-    ball_dx = -(ball_dx + ball_extra_speed);
-    ball_hit_b1 = true;
-  } else if ((aabb(b->x, b->y, 8, 8, b1->x, b1->y, 16, 1) && ball_dy > 0)) {
-    if (dy1 < 0)
-      ball_extra_speed += 0x0100;
+bool checkBallOnBlock(GBA_Sprite *b, GBA_Sprite *bl, u32 x_offset){
+  bool dx_is_left = x_offset > 0 ? ball_dx < 0 : ball_dx > 0;
+  bool is_hit = false;
+  bool can_check = x_offset > 0 ? b->x < SCREEN_WIDTH / 2 : b->x > SCREEN_WIDTH / 2;
 
-    ball_dy = -(ball_dy + ball_extra_speed);
-    ball_hit_b1 = true;
-  } else if ((aabb(b->x, b->y, 8, 8, b1->x, b1->y + 32, 16, 1) &&
+  if (!can_check) return false;
+
+  if ((aabb(b->x, b->y, 8, 8, bl->x + x_offset, bl->y, 1, 32) && dx_is_left)) {
+    b->x = bl->x + x_offset;
+
+    ball_extra_speed += 0x0100;
+    ball_dx = -ball_dx;
+    ball_dx += ball_dx > 0x00 ? ball_extra_speed : -ball_extra_speed;
+    is_hit = true;
+
+  } else if ((aabb(b->x, b->y, 8, 8, bl->x, bl->y, 16, 1) && ball_dy > 0)) {
+    if (dy1 < 0) ball_extra_speed += 0x0100;
+
+    ball_dy = -ball_dy;
+    ball_dy += ball_dy > 0x00 ? ball_extra_speed : -ball_extra_speed;
+    is_hit = true;
+
+  } else if ((aabb(b->x, b->y, 8, 8, bl->x, bl->y + 32, 16, 1) &&
               ball_dy < 0)) {
-    if (dy1 > 0)
-      ball_extra_speed += 0x0100;
+    if (dy1 > 0) ball_extra_speed += 0x0100;
 
-    ball_dy = -(ball_dy + ball_extra_speed);
-    ball_hit_b1 = true;
-  } else {
-    ball_hit_b1 = false;
-  }
-}
+    ball_dy = -ball_dy;
+    ball_dy += ball_dy > 0x00 ? ball_extra_speed : -ball_extra_speed;
+    is_hit = true;
 
-void checkBallInBlock2(GBA_Sprite *b, GBA_Sprite *b2) {
-  if ((aabb(b->x, b->y, 8, 8, b2->x, b2->y, 1, 32) && ball_dx > 0)) {
-    ball_dx = -(ball_dx + ball_extra_speed);
-    ball_hit_b2 = true;
-  } else if ((aabb(b->x, b->y, 8, 8, b2->x, b2->y, 16, 1) && ball_dy > 0)) {
-    ball_dy = -(ball_dy + ball_extra_speed);
-    ball_hit_b2 = true;
-  } else if ((aabb(b->x, b->y, 8, 8, b2->x, b2->y + 32, 16, 1) &&
-              ball_dy < 0)) {
-    ball_dy = -(ball_dy + ball_extra_speed);
-    ball_hit_b2 = true;
   } else {
-    ball_hit_b2 = false;
+    is_hit = false;
   }
+
+  return is_hit;
 }
 
 void initBall() {
@@ -106,7 +110,6 @@ void initBall() {
   GBA_createSprite(&ball_spr, ball_gfx, -1, BALL_INIT_X, BALL_INIT_Y, 0, 0, 1,
                    SPR_8X8);
 
-  ball_hit_b1 = ball_hit_b2 = false;
   ball_extra_speed = 0x00;
 
   ball_hit_snd = (mm_sound_effect){
@@ -118,16 +121,17 @@ void updateBall() {
   GBA_Sprite *b = &ball_spr;
   GBA_setAnimSprite(b, &ball_anim);
 
-  if (b->y < 0 || b->y > SCREEN_HEIGHT - 8) {
-    mmEffectEx(&ball_hit_snd); // Just play sound
+  if ( b->y < 0) {
+    mmEffectEx(&ball_hit_snd);
+    b->y = 0;
+    ball_dy = -ball_dy;
+  }else if ( b->y > SCREEN_HEIGHT - 8) {
+    mmEffectEx(&ball_hit_snd);
+    b->y = SCREEN_HEIGHT - 8;
     ball_dy = -ball_dy;
   }
-
-  checkBallInBlock1(b, &block_spr);
-  checkBallInBlock2(b, &block2_spr);
-
-  if (ball_hit_b1 || ball_hit_b2) {
-    ball_extra_speed += 0x0300;
+  
+  if (checkBallOnBlock(b, &block_spr, 16) || checkBallOnBlock(b, &block2_spr, 0)) {
     mmEffectEx(&ball_hit_snd);
   }
 
@@ -153,7 +157,7 @@ void updateBall() {
 
   ball_x += ball_dx;
   ball_y += ball_dy;
-  ball_extra_speed -= 0x030;
+  ball_extra_speed -= 0x090;
 
   b->x = fx2int(ball_x);
   b->y = fx2int(ball_y);

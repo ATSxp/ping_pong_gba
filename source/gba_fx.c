@@ -3,24 +3,20 @@
 
 // Fade Effect
 
-static FIXED f_alpha = 0;
-static bool f_is_run = false;
+FIXED f_alpha_bg = 0, f_alpha_obj = 0;
+bool f_obj_is_run = false, f_bg_is_run = false;
 
-void GBA_fadeInBg(GBA_Fade *fade, FIXED speed) {
-  int ii;
-  u32 pal_count;
+FIXED _updateFade(GBA_Fade *fade, void *dst, FIXED speed, FIXED init_a, FIXED *f_alpha, bool *f_is_run){
+  if (!*f_is_run) *f_alpha = init_a;
 
-  if (!f_is_run) f_alpha = 0;
-  f_is_run = true;
+  clr_fade(fade->src, CLR_BLACK, dst, 16 * fade->pal_bank_count, fx2int(*f_alpha));
 
-  for (ii = 0; ii < fade->len; ii++){
-    pal_count = fade->pal_bank_count[ii];
-
-    clr_fade(&fade->palettes[ii], CLR_BLACK, pal_bg_bank[pal_count], pal_count, fx2int(f_alpha));
+  if (*f_alpha <= FADE_MAX){
+    *f_is_run = true;
+    *f_alpha = clamp(*f_alpha += speed, 0x00, FADE_MAX);
+  } else {
+    *f_is_run = false;
   }
 
-  if (f_alpha != 0x03200){
-    f_alpha += speed;
-    f_alpha = clamp(f_alpha, 0x00, 0x03300);
-  }
+  return *f_alpha;
 }

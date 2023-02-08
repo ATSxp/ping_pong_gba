@@ -10,11 +10,13 @@
 #include "map_gol.h"
 
 #include "soundbank_bin.h"
-#include "tonc_memdef.h"
 
 GBA_Map bg1_map, gol_map;
 GBA_Gfx map_g_bg0_gfx, map_g_bg1_gfx, gol_gfx;
 FIXED map_x, map_y;
+
+GBA_Fade game_f_bg, game_f_obj;
+COLOR game_bg_p[32], game_obj_p[64];
 
 void initGame() {
   GBA_setMode(0);
@@ -28,7 +30,7 @@ void initGame() {
 
   gol_gfx = GBA_initGfx(map_gol, 0, false);
   GBA_loadTiles(gol_gfx, 0, 3, 1);
-  GBA_initMap(&gol_map, 0, BG_CBB(0)|BG_SBB(29), map_golMap, 32, 32);
+  GBA_initMap(&gol_map, 0, BG_CBB(0) | BG_SBB(29), map_golMap, 32, 32);
 
   map_g_bg1_gfx = GBA_initGfx(map_gameplay_bg1, 0, false);
   GBA_loadTiles(map_g_bg1_gfx, 0, 0, 0);
@@ -39,12 +41,21 @@ void initGame() {
 
   GBA_initOam(128);
 
+  game_f_bg = GBA_initFade(game_bg_p, 2);
+  game_f_obj = GBA_initFade(game_obj_p, 4);
+
   initBall();
   initBlocks();
   initHud();
+
+  GBA_cpyCurPalBg(&game_f_bg);
+  GBA_cpyCurPalObj(&game_f_obj);
 }
 
 void updateGame() {
+  GBA_fadeOutBg(&game_f_bg, 0x080);
+  GBA_fadeOutObj(&game_f_obj, 0x080);
+
   map_x = map_y += 0x080;
 
   GBA_setMapPos(1, fx2int(map_x), fx2int(map_y));

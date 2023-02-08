@@ -6,9 +6,6 @@
 #include "map_menu_tmp.h"
 #include "map_menu_bg1.h"
 #include "map_menu_bg2.h"
-#include "tonc_core.h"
-#include "tonc_memdef.h"
-#include "tonc_video.h"
 
 GBA_Gfx menu_gfx, menu2_gfx;
 GBA_Map menu_map, menu2_map;
@@ -27,9 +24,9 @@ FIXED menu2_x, menu2_y;
 //   return dst;
 // }
 
-FIXED alpha;
 bool go_to_game;
-COLOR bg_p[48];
+GBA_Fade menu_f;
+COLOR menu_bg_p[48];
 
 void initMenu() {
   GBA_setMode(0);
@@ -49,40 +46,38 @@ void initMenu() {
 
   menu2_x = menu2_y = 0;
 
+  menu_f = GBA_initFade(menu_bg_p, 3);
+  GBA_cpyCurPalBg(&menu_f);
+
   tte_write("#{P:60,140}Press [ START ]");
 
-  memcpy16(bg_p, pal_bg_mem, (menu_gfx.pal_len * 3) / 2);
-
   go_to_game = false;
-  alpha = 32 << 8;
 }
 
 void updateMenu() {
-  clr_fade_fast(bg_p, CLR_BLACK, pal_bg_mem, 48, fx2int(alpha));
+  FIXED a_out = 32 << 8, a_in = 0x00;
 
-  if (key_hit(KEY_START) && alpha <= 0x00) {
+  if (!go_to_game) {
+    a_out = GBA_fadeOutBg(&menu_f, 0x080);
+  } else {
+    a_in = GBA_fadeInBg(&menu_f, 0x080);
+  }
+
+  if (key_hit(KEY_START) && a_out <= 0x00) {
     go_to_game = true;
   }
 
-  if (alpha >= 32 << 8 && go_to_game)
+  if (a_in >= 32 << 8 && go_to_game)
     GBA_setScene(scene_game);
 
   menu2_x = menu2_y += 0x060;
-
-  if (!go_to_game) {
-    alpha -= 0x050;
-  } else {
-    alpha += 0x050;
-  }
-
-  alpha = clamp(alpha, 0x00, 33 << 8);
 
   GBA_setMapPos(2, fx2int(menu2_x), fx2int(menu2_y));
 }
 
 void endMenu() {
   // RegisterRamReset(RESET_VRAM);
-  RegisterRamReset(RESET_PALETTE);
+  // RegisterRamReset(RESET_PALETTE);
 }
 
 GBA_Scene scene_menu = {initMenu, updateMenu, endMenu};

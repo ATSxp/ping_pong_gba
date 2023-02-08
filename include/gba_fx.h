@@ -5,6 +5,12 @@
 #include "gba_oam.h"
 #include "gba_load.h"
 
-void GBA_fadeIn(cu16 pals[], int len, int pal_bank_count);
+typedef struct {
+  u16 *palettes;
+  int len;
+  u32 *pal_bank_count;
+} GBA_Fade;
+
+void GBA_fadeIn(GBA_Fade *fade);
 
 #endif // !GBA_FX_H

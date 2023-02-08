@@ -6,6 +6,7 @@
 #include "map_menu_tmp.h"
 #include "map_menu_bg1.h"
 #include "map_menu_bg2.h"
+#include "tonc_core.h"
 #include "tonc_memdef.h"
 #include "tonc_video.h"
 
@@ -28,6 +29,7 @@ FIXED menu2_x, menu2_y;
 
 FIXED alpha;
 bool go_to_game;
+COLOR bg_p[48];
 
 void initMenu() {
   GBA_setMode(0);
@@ -43,21 +45,22 @@ void initMenu() {
   GBA_loadTiles(menu2_gfx, 0, 324, 1);
   GBA_initMap(&menu2_map, 2, BG_CBB(0) | BG_SBB(26) | BG_4BPP, map_menu_bg2Map, 32, 32);
 
-  tte_init_se(0, BG_CBB(3) | BG_SBB(31), SE_PALBANK(15), CLR_WHITE, 0, &sys8Font, (fnDrawg)se_drawg_s);
+  tte_init_se(0, BG_CBB(3) | BG_SBB(31), SE_PALBANK(2), CLR_WHITE, 2, &sys8Font, (fnDrawg)se_drawg_s);
 
   menu2_x = menu2_y = 0;
 
   tte_write("#{P:60,140}Press [ START ]");
+
+  memcpy16(bg_p, pal_bg_mem, (menu_gfx.pal_len * 3) / 2);
 
   go_to_game = false;
   alpha = 32 << 8;
 }
 
 void updateMenu() {
-  clr_fade(menu_gfx.pal, CLR_BLACK, pal_bg_bank[0], 16, fx2int(alpha));
-  clr_fade(menu2_gfx.pal, CLR_BLACK, pal_bg_bank[1], 16, fx2int(alpha));
+  clr_fade_fast(bg_p, CLR_BLACK, pal_bg_mem, 48, fx2int(alpha));
 
-  if (key_hit(KEY_START)) {
+  if (key_hit(KEY_START) && alpha <= 0x00) {
     go_to_game = true;
   }
 
@@ -70,7 +73,6 @@ void updateMenu() {
     alpha -= 0x050;
   } else {
     alpha += 0x050;
-    clr_fade(pal_bg_bank[15], CLR_BLACK, pal_bg_bank[15], 16, fx2int(alpha));
   }
 
   alpha = clamp(alpha, 0x00, 33 << 8);

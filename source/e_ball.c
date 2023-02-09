@@ -10,7 +10,7 @@
 #define BALL_INIT_X   (SCREEN_WIDTH - 8) / 2
 #define BALL_INIT_Y   (SCREEN_HEIGHT - 8) / 2
 #define BALL_SPEED     0x0150
-#define BALL_EXTRA_SPD 0x0150
+#define BALL_EXTRA_SPD 0x080
 #define MAX_GOL_TM     0x0800
 
 GBA_Gfx ball_gfx;
@@ -74,13 +74,13 @@ bool checkBallOnBlock(GBA_Sprite *b, GBA_Sprite *bl, u32 x_offset){
   if ((aabb(b->x, b->y, 8, 8, bl->x + x_offset, bl->y, 1, 32) && dx_is_left)) {
     b->x = bl->x + x_offset;
 
-    ball_extra_speed += 0x0100;
+    ball_extra_speed += BALL_EXTRA_SPD;
     ball_dx = -ball_dx;
     ball_dx += ball_dx > 0x00 ? ball_extra_speed : -ball_extra_speed;
     is_hit = true;
 
   } else if ((aabb(b->x, b->y, 8, 8, bl->x, bl->y, 16, 1) && ball_dy > 0)) {
-    if (dy1 < 0) ball_extra_speed += 0x0100;
+    if (dy1 < 0) ball_extra_speed += BALL_EXTRA_SPD;
 
     ball_dy = -ball_dy;
     ball_dy += ball_dy > 0x00 ? ball_extra_speed : -ball_extra_speed;
@@ -88,7 +88,7 @@ bool checkBallOnBlock(GBA_Sprite *b, GBA_Sprite *bl, u32 x_offset){
 
   } else if ((aabb(b->x, b->y, 8, 8, bl->x, bl->y + 32, 16, 1) &&
               ball_dy < 0)) {
-    if (dy1 > 0) ball_extra_speed += 0x0100;
+    if (dy1 > 0) ball_extra_speed += BALL_EXTRA_SPD;
 
     ball_dy = -ball_dy;
     ball_dy += ball_dy > 0x00 ? ball_extra_speed : -ball_extra_speed;
@@ -157,7 +157,7 @@ void updateBall() {
 
   ball_x += ball_dx;
   ball_y += ball_dy;
-  ball_extra_speed -= 0x090;
+  ball_extra_speed -= 0x040;
 
   b->x = fx2int(ball_x);
   b->y = fx2int(ball_y);

@@ -11,8 +11,6 @@
 #include "map_gol.h"
 
 #include "soundbank_bin.h"
-#include "tonc_bios.h"
-#include "tonc_video.h"
 
 GBA_Map bg1_map, gol_map;
 GBA_Gfx map_g_bg0_gfx, map_g_bg1_gfx, gol_gfx;

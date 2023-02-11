@@ -1,25 +1,23 @@
 #include "../include/gba_oam.h"
 #include "../include/gba_mgba.h"
 
+GBA_Sprite spr_buffer[MAX_SPRITES];
 OBJ_ATTR oam_buffer[MAX_SPRITES];
 OBJ_AFFINE *oam_aff_buffer = (OBJ_AFFINE *)oam_buffer;
 u32 oam_count;
 
-void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
+GBA_Sprite *GBA_createSprite(GBA_Gfx gfx, int x, int y,
                       u32 tile_id, u32 pal_bank, u32 prio, u32 size) {
-  OBJ_ATTR *o;
+  int oam_id;
 
   if (oam_count >= MAX_SPRITES) {
     mgba_printf(MGBA_LOG_WARN, "OAM it is full");
-    return;
+    return NULL;
   }
 
-  if (oam_id < 0) {
-    o = &oam_buffer[oam_count++];
-    oam_id = oam_count - 1;
-  } else {
-    o = &oam_buffer[oam_id];
-  }
+  OBJ_ATTR *o = &oam_buffer[oam_count++];
+
+  GBA_Sprite *spr = &spr_buffer[oam_id = oam_count - 1];
   spr->id = oam_id;
 
   o->attr0 = (gfx.bpp ? ATTR0_8BPP : ATTR0_4BPP) | (ATTR0_SHAPE(gfx.shape));
@@ -37,6 +35,8 @@ void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
   }
 
   mgba_printf(MGBA_LOG_DEBUG, "Add Object in slot %d of OAM Buffer", oam_id);
+
+  return spr;
 }
 
 // Ativa a animação do Objeto com base na estrutura TAnim

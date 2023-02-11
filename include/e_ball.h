@@ -3,7 +3,7 @@
 
 #include "gba.h"
 
-extern GBA_Sprite ball_spr;
+extern GBA_Sprite *ball_spr;
 extern bool gol;
 
 void initBall();

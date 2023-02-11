@@ -46,12 +46,13 @@ typedef struct {
 
 extern OBJ_ATTR oam_buffer[MAX_SPRITES];
 extern OBJ_AFFINE *oam_aff_buffer;
+extern GBA_Sprite spr_buffer[MAX_SPRITES];
 extern u32 oam_count;
 
 /*#define GBA_initAnim(len, frames, speed, loop)                                 \
   (GBA_Anim) { len, frames, speed, loop }*/
 
-void GBA_createSprite(GBA_Sprite *spr, GBA_Gfx gfx, s32 oam_id, int x, int y,
+GBA_Sprite *GBA_createSprite(GBA_Gfx gfx, int x, int y,
                       u32 tile_id, u32 pal_bank, u32 prio, u32 size);
 void GBA_flipSprite(GBA_Sprite *spr, bool h, bool v);
 void GBA_updateSprite(GBA_Sprite *spr);
@@ -63,7 +64,14 @@ INLINE void GBA_initOam(u32 count) {
   REG_DISPCNT |= DCNT_OBJ | DCNT_OBJ_1D;
 }
 
-INLINE void GBA_updateOam() { oam_copy(oam_mem, oam_buffer, oam_count); }
+INLINE void GBA_updateOam() {
+  int ii;
+  for (ii = 0; ii < oam_count; ii++){
+    GBA_updateSprite(&spr_buffer[ii]);
+  }
+
+  oam_copy(oam_mem, oam_buffer, oam_count);
+}
 
 INLINE void GBA_setSpritePos(GBA_Sprite *spr, int x, int y) {
   BFN_SET(oam_buffer[spr->id].attr1, x, ATTR1_X);

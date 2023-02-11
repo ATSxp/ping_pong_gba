@@ -14,7 +14,7 @@
 #define MAX_GOL_TM     0x0800
 
 GBA_Gfx ball_gfx;
-GBA_Sprite ball_spr;
+GBA_Sprite *ball_spr;
 
 u32 ball_frm[5] = {0,1,2,3,4};
 GBA_Anim ball_anim = {5, ball_frm, 0x020, true};
@@ -107,7 +107,7 @@ void initBall() {
 
   ballReset();
 
-  GBA_createSprite(&ball_spr, ball_gfx, -1, BALL_INIT_X, BALL_INIT_Y, 0, 0, 1,
+  ball_spr = GBA_createSprite(ball_gfx, BALL_INIT_X, BALL_INIT_Y, 0, 0, 1,
                    SPR_8X8);
 
   ball_extra_speed = 0x00;
@@ -118,7 +118,7 @@ void initBall() {
 }
 
 void updateBall() {
-  GBA_Sprite *b = &ball_spr;
+  GBA_Sprite *b = ball_spr;
   GBA_setAnimSprite(b, &ball_anim);
 
   if ( b->y < 0) {
@@ -131,7 +131,7 @@ void updateBall() {
     ball_dy = -ball_dy;
   }
   
-  if (checkBallOnBlock(b, &block_spr, 16) || checkBallOnBlock(b, &block2_spr, 0)) {
+  if (checkBallOnBlock(b, block_spr, 16) || checkBallOnBlock(b, block2_spr, 0)) {
     mmEffectEx(&ball_hit_snd);
   }
 
@@ -161,5 +161,4 @@ void updateBall() {
 
   b->x = fx2int(ball_x);
   b->y = fx2int(ball_y);
-  GBA_updateSprite(b);
 }

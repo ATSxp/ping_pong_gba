@@ -8,7 +8,7 @@
 #define BLOCK_SPEED 0x0250
 
 GBA_Gfx blocks_gfx;
-GBA_Sprite block_spr, block2_spr;
+GBA_Sprite *block_spr, *block2_spr;
 
 FIXED b1_y, b2_y, dy1, dy2, boost_b1;
 u32 point1, point2;
@@ -18,9 +18,9 @@ void initBlocks() {
   blocks_gfx = GBA_initGfx(gfx_blocks, SPR_TALL, false);
   GBA_loadObjects(blocks_gfx, 5, 1);
 
-  GBA_createSprite(&block_spr, blocks_gfx, -1, 16, BLOCK_INIT_Y, 5, 1, 1,
+  block_spr = GBA_createSprite(blocks_gfx, 16, BLOCK_INIT_Y, 5, 1, 1,
                    SPR_16X32);
-  GBA_createSprite(&block2_spr, blocks_gfx, -1, SCREEN_WIDTH - 32, BLOCK_INIT_Y,
+  block2_spr = GBA_createSprite(blocks_gfx, SCREEN_WIDTH - 32, BLOCK_INIT_Y,
                    21, 1, 1, SPR_16X32);
 
   dy1 = dy2 = 0x00;
@@ -30,7 +30,7 @@ void initBlocks() {
 }
 
 void updateBlocks() {
-  GBA_Sprite *p = &block_spr, *e = &block2_spr;
+  GBA_Sprite *p = block_spr, *e = block2_spr;
 
   dy1 = 0;
   dy2 = 0;
@@ -61,7 +61,7 @@ void updateBlocks() {
   }
 
   // Rival
-  int dy = ball_spr.y - e->y;
+  int dy = ball_spr->y - e->y;
 
   if (e->y < 0) {
     e->y = 0;
@@ -69,7 +69,7 @@ void updateBlocks() {
     e->y = SCREEN_HEIGHT - 32;
   }
 
-  if (ball_spr.x > (SCREEN_WIDTH / 2) - 32) {
+  if (ball_spr->x > (SCREEN_WIDTH / 2) - 32) {
     FIXED dy_f = int2fx(dy);
     if (ABS(dy_f) >= BLOCK_SPEED && !b2_stopped) {
       dy2 = dy_f > 0 ? BLOCK_SPEED : -BLOCK_SPEED;
@@ -82,7 +82,4 @@ void updateBlocks() {
 
   p->y += fx2int(b1_y);
   e->y += fx2int(b2_y);
-
-  GBA_updateSprite(p);
-  GBA_updateSprite(e);
 }

@@ -58,7 +58,7 @@ void updateMenu() {
   FIXED a_out = FADE_MAX - 0x0100;
 
   if (!go_to_game) {
-    a_out = GBA_fadeOutBg(&menu_f, 0x080);
+    a_out = GBA_fadeOutBg(&menu_f, 0x095);
   } else {
     a_out = GBA_fadeInBg(&menu_f, 0x080);
   }

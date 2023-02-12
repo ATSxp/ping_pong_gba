@@ -24,7 +24,7 @@ int rnd_dx, rnd_dy, ball_speed_i;
 FIXED ball_x, ball_y, ball_dx, ball_dy, ball_extra_speed, gol_timer;
 bool gol;
 
-mm_sound_effect ball_hit_snd;
+mm_sound_effect ball_hit_sfx, gol_sfx;
 
 INLINE bool aabb(int x1, int y1, u32 w1, u32 h1, int x2, int y2, u32 w2, u32 h2) {
   return (x1 + (int)w1 >= x2 && y1 + (int)h1 >= y2 && x2 + (int)w2 >= x1 &&
@@ -114,39 +114,52 @@ void initBall() {
 
   ball_extra_speed = 0x00;
 
-  ball_hit_snd = (mm_sound_effect){
-      {SFX_BALL_HIT}, (int)(1.0f * (1 << 10)), 0, 255, 128,
+  ball_hit_sfx = (mm_sound_effect){
+      {SFX_BALL_HIT}, (0x0100 >> 8) * (1 << 10), 0, 255, 128,
+  };
+
+  gol_sfx = (mm_sound_effect){
+    {SFX_YEY}, (0x0100 >> 8) * (1 << 10), 0, 255, 128
   };
 }
 
 void updateBall() {
   GBA_Sprite *b = ball_spr;
+  mm_sfxhand gol_hand;
   GBA_setAnimSprite(b, &ball_anim);
 
   if ( b->y < 0) {
-    mmEffectEx(&ball_hit_snd);
+    mmEffectEx(&ball_hit_sfx);
     b->y = 0;
     ball_dy = -ball_dy;
   }else if ( b->y > SCREEN_HEIGHT - 8) {
-    mmEffectEx(&ball_hit_snd);
+    mmEffectEx(&ball_hit_sfx);
     b->y = SCREEN_HEIGHT - 8;
     ball_dy = -ball_dy;
   }
   
   if (checkBallOnBlock(b, block_spr, 16) || checkBallOnBlock(b, block2_spr, 0)) {
-    mmEffectEx(&ball_hit_snd);
+    mmEffectEx(&ball_hit_sfx);
   }
 
   if (ball_extra_speed <= 0x00)
     ball_extra_speed = 0x00;
 
   if (b->x < 0) {
-    if (!gol)
+    if (!gol) {
+      gol_hand = mmEffectEx(&gol_sfx);
+      mmEffectPanning(gol_hand, 0);
       ++point2;
+    }
+
     gol = true;
   } else if (b->x + 8 > SCREEN_WIDTH) {
-    if (!gol)
+    if (!gol) {
+      gol_hand = mmEffectEx(&gol_sfx);
+      mmEffectPanning(gol_hand, 255);
       ++point1;
+    }
+
     gol = true;
   }
 

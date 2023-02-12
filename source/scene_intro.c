@@ -60,7 +60,8 @@ void updateIntro(){
     a_out_i = GBA_fadeInBg(&intro_f, 0x080);
   }
 
-  if (key_hit(KEY_START) && a_out_i <= 0x00){
+  if (a_out_i <= 0x00){
+    VBlankIntrDelay(130);
     go_intro = true;
   } else if (go_intro && a_out_i >= FADE_MAX - 0x0100) {
     GBA_setScene(scene_menu);

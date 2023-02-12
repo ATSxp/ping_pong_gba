@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "../include/e_ball.h"
 #include "../include/e_blocks.h"
 #include "../include/gba_mgba.h"
@@ -45,6 +46,7 @@ void ballRandomDeltaPos() {
 
 void ballReset() {
   GBA_disableBg(0);
+  free(ball_spr);
 
   gol = false;
   gol_timer = MAX_GOL_TM;

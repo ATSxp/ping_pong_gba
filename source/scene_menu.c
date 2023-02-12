@@ -55,17 +55,17 @@ void initMenu() {
 }
 
 void updateMenu() {
-  FIXED a_out = FADE_MAX - 0x0100, a_in = 0x00;
+  FIXED a_out = FADE_MAX - 0x0100;
 
   if (!go_to_game) {
     a_out = GBA_fadeOutBg(&menu_f, 0x080);
   } else {
-    a_in = GBA_fadeInBg(&menu_f, 0x080);
+    a_out = GBA_fadeInBg(&menu_f, 0x080);
   }
 
   if (key_hit(KEY_START) && a_out <= 0x00) {
     go_to_game = true;
-  } else if (a_in >= FADE_MAX - 0x0100 && go_to_game){
+  } else if (a_out >= FADE_MAX - 0x0100 && go_to_game){
     VBlankIntrDelay(30);
     GBA_setScene(scene_game);
   }
